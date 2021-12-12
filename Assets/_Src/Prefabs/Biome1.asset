@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23a64a697ea78dd4d84131a3b8821c62, type: 3}
+  m_Name: Biome1
+  m_EditorClassIdentifier: 
+  BGSprites:
+  - {fileID: 21300000, guid: 46ebe6a21d5716d40acddb275687c7a1, type: 3}
+  - {fileID: 21300000, guid: 74aa6810135efe8449773c65a38c6dde, type: 3}
+  - {fileID: 21300000, guid: 267aa96bc61c56c438e4cd6e5d18e0ad, type: 3}
+  RuleTile: {fileID: 11400000, guid: 381a2f6a10143ac40ac46c6be5a6901a, type: 2}
+  BGGradient: {fileID: 21300000, guid: dc4dd45e720849344907663af936b320, type: 3}

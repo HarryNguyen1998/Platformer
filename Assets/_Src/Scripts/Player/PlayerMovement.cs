@@ -12,31 +12,24 @@ namespace MyPlatformer
 
         Rigidbody2D _rb;
         Animator _animator;
-        PlayerInput _playerInput;
         Vector2 _dir;
 
         void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _animator = GetComponent<Animator>();
-            _playerInput = new PlayerInput();
         }
 
         void OnEnable()
         {
-            _playerInput.Gameplay.Enable();
-            _playerInput.Gameplay.Move.performed += SetDir;
-            _playerInput.Gameplay.Move.canceled += SetDir;
-
-            _playerInput.Gameplay.Jump.performed += Jump;
+            InputReader.MoveEvent += SetDir;
+            InputReader.JumpEvent += Jump;
         }
 
         void OnDisable()
         {
-            _playerInput.Gameplay.Disable();
-            _playerInput.Gameplay.Move.performed -= SetDir;
-            _playerInput.Gameplay.Move.canceled -= SetDir;
-            _playerInput.Gameplay.Jump.performed -= Jump;
+            InputReader.MoveEvent -= SetDir;
+            InputReader.JumpEvent -= Jump;
         }
 
         private void FixedUpdate()
@@ -53,21 +46,19 @@ namespace MyPlatformer
                 _animator.SetBool("IsRunning", false);
         }
 
-        void Jump(InputAction.CallbackContext obj)
+        void Jump()
         {
             // @note No multi jumping
             if (!_rb.IsTouchingLayers(LayerMask.GetMask("Ground")))
                 return;
 
-            _rb.velocity += new Vector2(0.0f, obj.ReadValue<float>() * _jumpSpd);
+            _rb.velocity += new Vector2(0.0f, _jumpSpd);
             //_animator.SetBool("IsJumping", true);
         }
 
-        void SetDir(InputAction.CallbackContext obj)
+        void SetDir(Vector2 value)
         {
-            _dir = obj.ReadValue<Vector2>();
-
-
+            _dir = value;
         }
     }
 }

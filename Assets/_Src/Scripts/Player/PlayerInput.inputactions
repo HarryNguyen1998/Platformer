@@ -18,7 +18,7 @@
                     "name": "Move",
                     "type": "Value",
                     "id": "92959e0d-60bd-4dac-b438-f60ff425bcfb",
-                    "expectedControlType": "",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -90,6 +90,34 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "Config",
+            "id": "50b38cd6-3830-4494-8bf7-719a36f0caaa",
+            "actions": [
+                {
+                    "name": "GenerateMap",
+                    "type": "Button",
+                    "id": "4d8ec7b8-c364-44db-84e6-ddacc3158c97",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a4f39639-1cb2-487a-803b-5711e15bcacf",
+                    "path": "<Keyboard>/minus",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GenerateMap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

@@ -40,7 +40,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""name"": ""Move"",
                     ""type"": ""Value"",
                     ""id"": ""92959e0d-60bd-4dac-b438-f60ff425bcfb"",
-                    ""expectedControlType"": """",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -114,6 +114,34 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""Config"",
+            ""id"": ""50b38cd6-3830-4494-8bf7-719a36f0caaa"",
+            ""actions"": [
+                {
+                    ""name"": ""GenerateMap"",
+                    ""type"": ""Button"",
+                    ""id"": ""4d8ec7b8-c364-44db-84e6-ddacc3158c97"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""a4f39639-1cb2-487a-803b-5711e15bcacf"",
+                    ""path"": ""<Keyboard>/minus"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GenerateMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -122,6 +150,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
         m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
         m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
+        // Config
+        m_Config = asset.FindActionMap("Config", throwIfNotFound: true);
+        m_Config_GenerateMap = m_Config.FindAction("GenerateMap", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -218,9 +249,46 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         }
     }
     public GameplayActions @Gameplay => new GameplayActions(this);
+
+    // Config
+    private readonly InputActionMap m_Config;
+    private IConfigActions m_ConfigActionsCallbackInterface;
+    private readonly InputAction m_Config_GenerateMap;
+    public struct ConfigActions
+    {
+        private @PlayerInput m_Wrapper;
+        public ConfigActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
+        public InputAction @GenerateMap => m_Wrapper.m_Config_GenerateMap;
+        public InputActionMap Get() { return m_Wrapper.m_Config; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(ConfigActions set) { return set.Get(); }
+        public void SetCallbacks(IConfigActions instance)
+        {
+            if (m_Wrapper.m_ConfigActionsCallbackInterface != null)
+            {
+                @GenerateMap.started -= m_Wrapper.m_ConfigActionsCallbackInterface.OnGenerateMap;
+                @GenerateMap.performed -= m_Wrapper.m_ConfigActionsCallbackInterface.OnGenerateMap;
+                @GenerateMap.canceled -= m_Wrapper.m_ConfigActionsCallbackInterface.OnGenerateMap;
+            }
+            m_Wrapper.m_ConfigActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @GenerateMap.started += instance.OnGenerateMap;
+                @GenerateMap.performed += instance.OnGenerateMap;
+                @GenerateMap.canceled += instance.OnGenerateMap;
+            }
+        }
+    }
+    public ConfigActions @Config => new ConfigActions(this);
     public interface IGameplayActions
     {
         void OnJump(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
+    }
+    public interface IConfigActions
+    {
+        void OnGenerateMap(InputAction.CallbackContext context);
     }
 }
