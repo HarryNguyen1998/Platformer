@@ -19,11 +19,9 @@ namespace MyPlatformer
 
         private void LateUpdate()
         {
-#if false
             Vector3 deltaMvmt = _camTransform.position - _camPrevPos;
-            transform.position += deltaMvmt * _parallaxMultiplier;
+            transform.position -= deltaMvmt * (1.0f - _parallaxMultiplier);
             _camPrevPos = _camTransform.position;
-#endif
 
             float diffX = Mathf.Abs(_camTransform.position.x - transform.position.x);
             if (diffX >= _textureUnitSizeX)
