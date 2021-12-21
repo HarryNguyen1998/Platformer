@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 namespace MyPlatformer
@@ -10,6 +11,10 @@ namespace MyPlatformer
         [SerializeField] SpriteRenderer _bgGradient;
         [SerializeField] Transform _dynamicObjs;
         [SerializeField] Token _tokenPrefab;
+        [SerializeField] Transform _spikePrefab;
+        [SerializeField] Transform _goalPrefab;
+        [SerializeField] float _tokenOffsetY;
+        [SerializeField] float _spikeOffsetY;
 
         [Tooltip("Tilemap to draw tiles on")]
         [SerializeField] Tilemap _tilemap;
@@ -31,12 +36,20 @@ namespace MyPlatformer
 
         void OnEnable()
         {
+            SceneManager.sceneLoaded += OnSceneLoaded;
             InputReader.GenerateMapEvent += GenerateMap;
         }
 
         void OnDisable()
         {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             InputReader.GenerateMapEvent -= GenerateMap;
+        }
+
+        void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
+        {
+            if (scene.buildIndex != 0)
+                GenerateMap();
         }
 
         public void GenerateMap()
@@ -60,7 +73,7 @@ namespace MyPlatformer
                     continue;
                 }
                 
-                bool shouldSpawnChasm = ((x >= _spawnWidth) && (x <= map.Width - _gameOverWidth) && Random.Range(0, 10) == 1);
+                bool shouldSpawnChasm = ((x >= _spawnWidth) && (x < map.Width - _gameOverWidth) && Random.Range(0, 10) == 1);
                 if (shouldSpawnChasm)
                 {
                     chasmWidth = Random.Range(0, 5) == 1 ? 4 : 2;
@@ -69,7 +82,7 @@ namespace MyPlatformer
                 }
 
                 int height = map.Height;
-                bool shouldSpawnPillar = ((x >= _spawnWidth) && (x <= map.Width - _gameOverWidth) && Random.Range(0, 5) == 1);
+                bool shouldSpawnPillar = ((x >= _spawnWidth) && (x < map.Width - _gameOverWidth) && Random.Range(0, 5) == 1);
 
                 if (!shouldSpawnPillar)
                     height -= _pillarHeight;
@@ -83,14 +96,13 @@ namespace MyPlatformer
 
             }
 
-            Vector2Int offset = new Vector2Int(-_spawnWidth / 2, -Height);
+            Vector2Int platformOffset = new Vector2Int(-_spawnWidth / 2, -Height);
 
             // Spawn token
             // @note World position to grid position is offset by Vector2(0.5f, 0.5f)
-            BoxCollider2D tokenCollider = _tokenPrefab.GetComponent<BoxCollider2D>();
-            Vector2 tokenOffset = new Vector2(offset.x + 0.5f - tokenCollider.offset.x, offset.y + 0.5f - tokenCollider.offset.y);
+            Vector2 tokenOffset = new Vector2(platformOffset.x + 0.5f, platformOffset.y);
             int counter = 0;
-            for (int x = 0; x < map.Width; ++x)
+            for (int x = _spawnWidth; x < map.Width - _gameOverWidth; ++x)
             {
                 if (Random.Range(0, 6) != 1)
                     continue;
@@ -106,18 +118,26 @@ namespace MyPlatformer
                     // We're above top tile
                     if (!map[x, y])
                     {
-                        Debug.Log($"{x},{y} the {++counter} times");
-                        Instantiate(_tokenPrefab, new Vector3(x + tokenOffset.x, y + tokenOffset.y, 0), Quaternion.identity, _dynamicObjs).name += counter.ToString();
+                        if (Random.value < 0.5f)
+                            Instantiate(_tokenPrefab, new Vector3(x + tokenOffset.x, y + tokenOffset.y + _tokenOffsetY, 0), Quaternion.identity, _dynamicObjs).name += counter.ToString();
+                        else
+                            Instantiate(_spikePrefab, new Vector3(x + tokenOffset.x, y + tokenOffset.y + _spikeOffsetY, 0), Quaternion.identity, _dynamicObjs).name += counter.ToString();
+
+                        ++counter;
                         break;
                     }
                 }
             }
 
+            // Spawn Goalpost
+            Instantiate(_goalPrefab, new Vector3(map.Width - 3.0f + tokenOffset.x, 0.0f, 0.0f), Quaternion.identity, _dynamicObjs);
+
+
             // Choose a random biome to draw
             int biomeIndex = Random.Range(0, _mapDatas.Length);
             _bg.sprite = _mapDatas[biomeIndex].GetRandomBGSprite();
             _bgGradient.sprite = _mapDatas[biomeIndex].BGGradient;
-            MapGenerationHelper.RenderMapWithOffset(map, _tilemap, _mapDatas[biomeIndex].RuleTile, offset);
+            MapGenerationHelper.RenderMapWithOffset(map, _tilemap, _mapDatas[biomeIndex].RuleTile, platformOffset);
         }
 
         public void ClearMap()
@@ -129,11 +149,6 @@ namespace MyPlatformer
                 DestroyImmediate(_dynamicObjs.transform.GetChild(i).gameObject);
             }
 
-        }
-
-        void OnDrawGizmos()
-        {
-            
         }
 
     }

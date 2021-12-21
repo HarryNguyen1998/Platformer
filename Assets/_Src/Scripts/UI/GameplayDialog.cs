@@ -9,57 +9,41 @@ namespace MyPlatformer
         [SerializeField] TMP_Text _currentTimeText;
         [SerializeField] TMP_Text _scoreText;
         [SerializeField] TMP_Text _highScoreText;
-        bool _shouldStartStopWatch;
-        float _currentTime;
-        int _score;
-        int _highScore;
+        ScoreManager _scoreManager;
+
+        private void Awake()
+        {
+            _scoreManager = ScoreManager.Instance;
+        }
 
         private void OnEnable()
         {
-            Token.WasEaten += AddScore;
+            _scoreManager.ScoreChanged += ShowScore;
         }
 
         private void OnDisable()
         {
-            Token.WasEaten -= AddScore;
+            _scoreManager.ScoreChanged -= ShowScore;
         }
 
         void Start()
         {
             _currentTimeText.text = "00:00:00";
-            _highScoreText.text = $"HIGH SCORE: {_highScore}";
+            _scoreText.text = $"SCORE: {_scoreManager.Score}";
+            _highScoreText.text = $"HIGH SCORE: {_scoreManager.HighScore}";
         }
 
         void Update()
         {
-            if (_shouldStartStopWatch)
-            {
-                _currentTime += Time.deltaTime;
-                TimeSpan time = TimeSpan.FromSeconds(_currentTime);
-
-                _currentTimeText.text = time.ToString(@"mm\:ss\:fff");
-            }
+            TimeSpan time = TimeSpan.FromSeconds(_scoreManager.CurrentTime);
+            _currentTimeText.text = time.ToString(@"mm\:ss\:fff");
         }
 
-        public void StartStopWatch()
+        void ShowScore()
         {
-            _shouldStartStopWatch = true;
+            _scoreText.text = $"SCORE: {_scoreManager.Score}";
+            _highScoreText.text = $"HIGH SCORE: {_scoreManager.HighScore}";
         }
 
-        public void StopStopWatch()
-        {
-            _shouldStartStopWatch = false;
-        }
-
-        public void AddScore()
-        {
-            ++_score;
-            _scoreText.text = $"SCORE: {_score}";
-            if (_highScore < _score)
-            {
-                _highScore = _score;
-                _highScoreText.text = $"HIGH SCORE: {_highScore}";
-            }
-        }
     }
 }

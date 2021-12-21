@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 
 namespace MyPlatformer
 {
-    [CreateAssetMenu]
     public class InputReader : MonoBehaviour, PlayerInput.IConfigActions, PlayerInput.IGameplayActions
     {
         public static event Action GenerateMapEvent;
@@ -13,7 +12,7 @@ namespace MyPlatformer
 
         PlayerInput _playerInput;
 
-        private void OnEnable()
+        void OnEnable()
         {
             if (_playerInput == null)
             {
@@ -24,30 +23,37 @@ namespace MyPlatformer
 
             _playerInput.Config.Enable();
             _playerInput.Gameplay.Enable();
+            PlayerController.PlayerDied += DisableGameplayInput;
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             _playerInput.Config.Disable();
             _playerInput.Gameplay.Disable();
+            PlayerController.PlayerDied -= DisableGameplayInput;
         }
 
-        public void OnGenerateMap(InputAction.CallbackContext context)
+        void PlayerInput.IConfigActions.OnGenerateMap(InputAction.CallbackContext context)
         {
             // @note This is basically isPressedThisFrame.
             if (context.phase == InputActionPhase.Performed)
                 GenerateMapEvent?.Invoke();
         }
 
-        public void OnJump(InputAction.CallbackContext context)
+        void PlayerInput.IGameplayActions.OnJump(InputAction.CallbackContext context)
         {
             if (context.phase == InputActionPhase.Performed)
                 JumpEvent?.Invoke();
         }
 
-        public void OnMove(InputAction.CallbackContext context)
+        void PlayerInput.IGameplayActions.OnMove(InputAction.CallbackContext context)
         {
             MoveEvent?.Invoke(context.ReadValue<Vector2>());
+        }
+
+        void DisableGameplayInput()
+        {
+            _playerInput.Gameplay.Disable();
         }
 
     }

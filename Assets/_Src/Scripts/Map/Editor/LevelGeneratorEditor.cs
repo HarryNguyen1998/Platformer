@@ -21,7 +21,6 @@ namespace MyPlatformer
             {
                 levelGen.ClearMap();
             }
-
         }
     }
 

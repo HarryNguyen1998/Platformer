@@ -10,7 +10,7 @@ namespace MyPlatformer
 
         void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.GetComponent<PlayerMovement>() != null)
+            if (collision.GetComponentInParent<PlayerController>() != null)
             {
                 WasEaten?.Invoke();
                 Destroy(gameObject);
